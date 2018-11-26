@@ -8,7 +8,8 @@ all: principal
 principal.o: principal.cpp geom.hpp
 Tela.o: Tela.cpp Tela.hpp geom.hpp
 mapa.o: mapa.cpp mapa.hpp Tela.cpp Tela.hpp geom.hpp
-principal: principal.o Tela.o mapa.o
+grafo.o: grafo.cpp grafo.hpp Tela.cpp Tela.hpp geom.hpp
+principal: principal.o Tela.o  grafo.o mapa.o
 	$(CXX) $(CXXFLAGS) -o $@  $^ $(LDFLAGS)
 
 clean:
