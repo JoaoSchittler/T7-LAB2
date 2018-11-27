@@ -27,6 +27,8 @@ namespace grafo{
         std::map<int, Vertice>::iterator it;
         std::map<int, Vertice>::iterator it_;
 
+        void cria_grafo(char** mapa, unsigned int lin , unsigned int col);
+
         void cria_lista_adj();
 
         void busca_largura_lab(Vertice* saida, Vertice* entrada);
