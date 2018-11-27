@@ -2,6 +2,30 @@
 
 namespace grafo{
 
+    void Grafo::cria_grafo(char** mapa, unsigned int lin , unsigned int col){
+        unsigned int i,j, cont = 0;
+        Ponto  p = {0, 60};
+
+        for(i=0;i<lin;i++){
+
+            for(j=0;j<col;j++){
+
+                if(mapa[i][j]!='P'){
+                    grafo[cont] = Vertice();
+                    grafo[cont].dist = 0;
+                    grafo[cont].ponto.x = p.x+10;
+                    grafo[cont].ponto.y = p.y+10;
+                    cont++;
+                }
+
+                p.x += 20;
+            }
+
+            p.x  = 0;
+            p.y += 20;
+        }
+    }
+
 
     void Grafo::cria_lista_adj(){
         for(it = grafo.begin();it!=grafo.end();it++){
