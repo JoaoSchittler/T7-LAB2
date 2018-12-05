@@ -2,6 +2,7 @@
 
 #include<iostream>
 #include<list>
+#include<vector>
 #include<queue>
 #include<map>
 
@@ -30,8 +31,10 @@ namespace grafo{
         void cria_grafo(char** mapa, unsigned int lin , unsigned int col);
 
         void cria_lista_adj();
+        
+        std::vector<Vertice*> busca_vizinhos(Ponto p);
 
-        void busca_largura_lab(Vertice* saida, Vertice* entrada);
+        void busca_largura(Vertice* saida, Vertice* entrada);
 
         Vertice* busca_vertice(Ponto p);
 
