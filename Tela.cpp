@@ -227,19 +227,21 @@ void Tela::processa_eventos() {
     }
 }
 
-void Tela::retangulo(Retangulo r) {
-    /* preenche o retangulo r com a cor padrao */
+void Tela::retangulo(Retangulo r,Cor cor) {
     al_draw_filled_rectangle(
         /* canto superior esquerdo */
         XU2X(r.pos.x), YU2X(r.pos.y),
         /* canto inferior direito */
-        XU2X(r.pos.x + r.tam.larg), YU2X(r.pos.y + r.tam.alt), ac_cor);
+        XU2X(r.pos.x + r.tam.larg), YU2X(r.pos.y + r.tam.alt),al_map_rgb(cor.r,cor.g,cor.b));
 }
 
-void Tela::circulo(Circulo c) {
-    /* preenche o circulo r na tela com a cor padrao */
+
+void Tela::circulo(Circulo c, Cor cor) {
+
     al_draw_filled_circle(XU2X(c.centro.x), YU2X(c.centro.y), XU2X(c.raio),
-                          ac_cor);
+
+                        al_map_rgb(cor.r,cor.g,cor.b));
+
 }
 
 void Tela::linha(Ponto p1, Ponto p2) {
