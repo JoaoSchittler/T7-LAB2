@@ -42,8 +42,17 @@ namespace grafo{
 
         }
     }
+    
+    std::vector<Vertice*> Grafo::busca_vizinhos(Ponto p){
+        std::vector<Vertice*> vizinhos;
+        Vertice* v  = busca_vertice(p);
+        for(auto it : v->adj){
+            vizinhos.push_back(it);
+        }
+        return vizinhos;
+    }
 
-    void Grafo::busca_largura_lab(Vertice* saida, Vertice* entrada){
+    void Grafo::busca_largura(Vertice* saida, Vertice* entrada){
         std::queue<Vertice*> fila;
         fila.push(saida);
         Vertice* aux;
