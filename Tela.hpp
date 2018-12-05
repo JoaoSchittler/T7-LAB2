@@ -101,10 +101,10 @@ struct Tela {
     void linha(Ponto p1, Ponto p2);
 
     // desenha um retangulo
-    void retangulo(Retangulo r);
+    void retangulo(Retangulo r, Cor cor);
 
     // desenha um circulo
-    void circulo(Circulo c);
+    void circulo(Circulo c, Cor cor);
 
     // tamanho necessario para se escrever o texto s
     Tamanho tamanho_texto(const char *s);
