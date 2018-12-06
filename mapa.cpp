@@ -15,6 +15,8 @@ namespace mapa
        input_map.open(nome_input);
        lin = 0;
        col = 0;
+       xini = 0;
+       yini = 60;
        unsigned int max = 0;
        //Calcula o numero de linhas e colunas do mapa
        while(std::getline(input_map,linha))
@@ -40,9 +42,7 @@ namespace mapa
           for(j=0;j<col;j++)
           {
               map[i][j] = linha[j];
-              std::cout << map[i][j] << " ";
-          }
-          std::cout << std::endl;       
+          }    
        }
        input_map.close();
        std::cout << "Mapa criado, " << lin << " linhas e " << col << " colunas\n";
@@ -53,16 +53,26 @@ namespace mapa
        Retangulo ret;
        ret.tam.alt  = 20;
        ret.tam.larg = 20;
-       ret.pos = {0,60};
+       ret.pos = {xini,yini};
        Cor c = {0,255,255};
+       Cor c2 = {255,255,102};
        //Lê o arquivo texto, desenha o mapa na tela e salva o conteudo desse arquivo na matriz mapa
        unsigned int j,i;
        for(j=0;j<lin;j++)
        {
           for(i=0;i<col;i++)
           {
-              if(map[j][i]=='P')t.retangulo(ret,c);
-              else t.retangulo(ret,{0,0,0});
+              t.retangulo(ret,{0,0,0});            
+              if(map[j][i]=='P')
+                   t.retangulo(ret,c);
+              else if(map[j][i]=='C')
+              {
+                   Circulo circ;
+                   circ.raio = 2;
+                   circ.centro.x = ret.pos.x+10;
+                   circ.centro.y = ret.pos.y+10; 
+                   t.circulo(circ,c2); 
+              } 
               ret.pos.x+=20;  
           }
           ret.pos.x = 0;
