@@ -11,12 +11,26 @@
 #include "grafo.hpp"
 #define  FPS 30       //Frams por segundos
 #define  PPF  5       //Pixeis por frames
+
+//??
+int const tam = 20;
+int const quant_fantasma = 4;
+
 using namespace tela;
 using namespace geom;
 using namespace mapa;
 using namespace grafo;
 /* estados para o jogo */
 enum Estado { nada, menu, jogando, ganhou, perdeu };
+
+//??
+enum Direcao {sobe, desce, direita , esquerda};
+//??
+struct Fantasmas{
+    Ponto p;
+    ALLEGRO_BITMAP* sprite[8];
+    Direcao direcao;
+};
 
 // Estrutura para controlar todos os objetos e estados do Jogo Centipede
 struct Jogo
@@ -37,6 +51,8 @@ struct Jogo
     Mapa            mapa;
     ALLEGRO_BITMAP* imagens[16];
     Grafo           grafo;
+    //??
+    Fantasmas fantasma[quant_fantasma];
     int             tecla;
     int             frame_counter;
     int             score;
@@ -48,6 +64,8 @@ struct Jogo
       mapa.cria               ("mapa.txt");
       grafo.cria_grafo        (mapa.map,mapa.lin,mapa.col);
       grafo.cria_lista_adj    ();
+      //??
+      inicializa_fantasmas();
       carrega_imagens         ();
       estado                   = Estado::nada;
       score                    = 0;
@@ -58,6 +76,102 @@ struct Jogo
       pacman.pos               = grafo.grafo[0].ponto;
       pacman.map_pos           = grafo.grafo[0].ponto;
     }
+    
+    
+    //??
+    void inicializa_fantasmas(){
+        for(int  i =0 ; i<quant_fantasma;i++){
+            fantasma[i].p = g.grafo[i*25].ponto;
+            fantasma[i].direcao = direita;
+            switch(i){
+                case 0: inicializa_sprites_ver(i);
+                    break;
+                case 1: inicializa_sprites_azul(i);
+                    break;
+                case 2: inicializa_sprites_roxo(i);
+                    break;
+                case 3: inicializa_sprites_amarelo(i);
+                    break;
+            }
+        }
+    }
+    //??
+    void inicializa_sprites_ver(int i){
+
+        fantasma[i].sprite[0] = t.carrega_imagem("Sprites/RG_U1.png");
+
+        fantasma[i].sprite[1] = t.carrega_imagem("Sprites/RG_D1.png");
+
+        fantasma[i].sprite[2] = t.carrega_imagem("Sprites/RG_R1.png");
+
+        fantasma[i].sprite[3] = t.carrega_imagem("Sprites/RG_L1.png");
+
+        fantasma[i].sprite[4] = t.carrega_imagem("Sprites/RG_U2.png");
+
+        fantasma[i].sprite[5] = t.carrega_imagem("Sprites/RG_D2.png");
+
+        fantasma[i].sprite[6] = t.carrega_imagem("Sprites/RG_R2.png");
+
+        fantasma[i].sprite[7] = t.carrega_imagem("Sprites/RG_L2.png");
+
+    }
+    //??
+     void inicializa_sprites_azul(int i){
+
+        fantasma[i].sprite[0] = t.carrega_imagem("Sprites/BG_U1.png");
+
+        fantasma[i].sprite[1] = t.carrega_imagem("Sprites/BG_D1.png");
+
+        fantasma[i].sprite[2] = t.carrega_imagem("Sprites/BG_R1.png");
+
+        fantasma[i].sprite[3] = t.carrega_imagem("Sprites/BG_L1.png");
+
+        fantasma[i].sprite[4] = t.carrega_imagem("Sprites/BG_U2.png");
+
+        fantasma[i].sprite[5] = t.carrega_imagem("Sprites/BG_D2.png");
+
+        fantasma[i].sprite[6] = t.carrega_imagem("Sprites/BG_R2.png");
+
+        fantasma[i].sprite[7] = t.carrega_imagem("Sprites/BG_L2.png");
+    }
+    //??
+    void inicializa_sprites_roxo(int i){
+        fantasma[i].sprite[0] = t.carrega_imagem("Sprites/PG_U1.png");
+
+        fantasma[i].sprite[1] = t.carrega_imagem("Sprites/PG_D1.png");
+
+        fantasma[i].sprite[2] = t.carrega_imagem("Sprites/PG_R1.png");
+
+        fantasma[i].sprite[3] = t.carrega_imagem("Sprites/PG_L1.png");
+
+        fantasma[i].sprite[4] = t.carrega_imagem("Sprites/PG_U2.png");
+
+        fantasma[i].sprite[5] = t.carrega_imagem("Sprites/PG_D2.png");
+
+        fantasma[i].sprite[6] = t.carrega_imagem("Sprites/PG_R2.png");
+
+        fantasma[i].sprite[7] = t.carrega_imagem("Sprites/PG_L2.png");
+    }
+    //??
+    void inicializa_sprites_amarelo(int i){
+        fantasma[i].sprite[0] = t.carrega_imagem("Sprites/YG_U1.png");
+
+        fantasma[i].sprite[1] = t.carrega_imagem("Sprites/YG_D1.png");
+
+        fantasma[i].sprite[2] = t.carrega_imagem("Sprites/YG_R1.png");
+
+        fantasma[i].sprite[3] = t.carrega_imagem("Sprites/YG_L1.png");
+
+        fantasma[i].sprite[4] = t.carrega_imagem("Sprites/YG_U2.png");
+
+        fantasma[i].sprite[5] = t.carrega_imagem("Sprites/YG_D2.png");
+
+        fantasma[i].sprite[6] = t.carrega_imagem("Sprites/YG_R2.png");
+
+        fantasma[i].sprite[7] = t.carrega_imagem("Sprites/YG_L2.png");
+    }
+
+    
     void carrega_imagens()
     {
          //Imagens do pacman
@@ -102,8 +216,48 @@ struct Jogo
     {
         mapa.desenha(t);
         desenha_pacman();
-        //desenha_fantasmas();
+        desenha_fantasmas();
     }
+    //??
+    void desenha_fantasmas(){
+        for(int i = 0 ;i < quant_fantasma;i++){
+            desenha_fantasma_(i);
+        }
+    }
+    //??
+    void desenha_fantasma_(int i){
+        ALLEGRO_BITMAP* aux;
+        if((int)al_get_time()%2==0){
+            switch(fantasma[i].direcao){
+                case(sobe):      aux = fantasma[i].sprite[0];
+                    break;
+                case(desce):     aux = fantasma[i].sprite[1];
+                    break;
+                case(direita):   aux = fantasma[i].sprite[2];
+                    break;
+                case(esquerda):  aux = fantasma[i].sprite[3];
+                    break;
+
+            }
+            t.desenha_imagem(aux, {fantasma[i].p.x-tam/2, fantasma[i].p.y-tam/2});
+        }else{
+            switch(fantasma[i].direcao){
+                case(sobe):     aux = fantasma[i].sprite[4];
+                    break;
+                case(desce):    aux = fantasma[i].sprite[5];
+                    break;
+                case(direita):  aux = fantasma[i].sprite[6];
+                    break;
+                case(esquerda): aux = fantasma[i].sprite[7];
+                    break;
+
+            }
+            t.desenha_imagem(aux, {fantasma[i].p.x-tam/2, fantasma[i].p.y-tam/2});
+        }
+
+
+    }
+    
     void desenha_pacman()
     {
         //Indexação com o vetor imagens: 2*(dir-1) se anim_sprite_frame = 0, 2*(dir-1)+1se anim_sprite_frame = 1
@@ -115,9 +269,85 @@ struct Jogo
     void move_personagens()
     {
         move_pac();
+        movimento_fantasmas();
         //move_ghost();
         //detecte_gameover();
     } 
+    //??
+    //Retorna quanto o fantasma move no x e no y apartir do ponto 
+    //e altera a direcao
+    std::vector<int> retorna_direcao(Ponto destino, int i){
+        int x = 0;
+        int y = 0;
+        std::vector<int> x_e_y;
+        if(fantasma[i].p.y<destino.y){
+            fantasma[i].direcao = desce;
+            y = 5;
+        }else if(fantasma[i].p.y>destino.y){
+            fantasma[i].direcao = sobe;
+            y = -5;
+        }else if(fantasma[i].p.x<destino.x){
+            fantasma[i].direcao = direita;
+            x = 5;
+        }else if(fantasma[i].p.x>destino.x){
+            fantasma[i].direcao = esquerda;
+            x= -5;
+        }
+        x_e_y.push_back(x);
+        x_e_y.push_back(y);
+
+        return x_e_y;
+
+
+    }
+    //Retorna o caminho do fantasma i ate o ponto q
+    std::vector<Vertice*> retorna_caminho(int i, Ponto q){
+        Ponto p = fantasma[i].p;
+        g.busca_largura_lab(g.busca_vertice(p), g.busca_vertice(q));
+        std::vector<Vertice*> caminho = g.caminho_curto(p, q);
+        return caminho;
+
+    }
+
+
+    ///Realiza o movimento dso fantasmas
+    void movimento_fantasmas(){
+        for(int i = 0 ; i<quant_fantasma;i++){
+                movimento_fantasmas_(retorna_caminho(i,g.grafo[g.grafo.size()-4].ponto), i);
+        }
+    }
+    
+    //Recebe o caminho e o fantasma i
+    //Enquanto o fantasma nao for o mesmo ponto que o ultimo ponto do caminho segue o loop
+    //No loop ele procura a posicao do fantasma e se for do grafo ele procura as direcoes que o fantasma
+    // deve andar ate o proximo ponto do caminho e ele fica andando esse  e y até que o lugar do fantasma
+    // pertenca ao caminho denovo
+    void movimento_fantasmas_(std::vector<Vertice*> caminho, int i){
+            int antiga_x= 0 ;
+            int antiga_y = 0;
+            std::vector<Vertice*>::iterator it = caminho.begin();
+            while(g.busca_vertice(fantasma[i].p)!=caminho[caminho.size()-1]){
+                if(g.busca_vertice(fantasma[i].p)!=nullptr ){
+                    it++;
+                    std::vector<int> direcoes = retorna_direcao((*it)->ponto, i);
+                    antiga_x = direcoes[0];
+                    antiga_y = direcoes[1];
+                }
+                fantasma[i].p.x+=antiga_x;
+                fantasma[i].p.y+=antiga_y;
+                tecla = t.tecla();
+                if(tecla == ALLEGRO_KEY_SPACE)
+                        estado = Estado::fim;
+                if (estado == Estado::jogo) {
+                    t.limpa();
+                    desenha();
+                    t.mostra();
+                    t.espera(16.66);
+                }
+
+            }
+    }
+    
     void move_pac()
     {
         if(pacman.anim_counter < 20)
