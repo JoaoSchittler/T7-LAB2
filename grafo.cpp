@@ -92,7 +92,13 @@ namespace grafo{
 
 
 
-    void Grafo::caminho_curto(Ponto fonte,Ponto destino){
+    std::vector<Vertice*> Grafo::caminho_curto(Ponto fonte,Ponto destino){
+        std::vector<Vertice*> caminho;
+        caminho_curto_(fonte, destino, &caminho);
+        return caminho;
+    }
+
+    void Grafo::caminho_curto_(Ponto fonte,Ponto destino, std::vector<Vertice*>*caminho){
         Vertice* saida = busca_vertice(fonte);
         if(saida == nullptr){
             std::cout<<"Saida eh invalido";
@@ -105,16 +111,15 @@ namespace grafo{
         }
 
         if(entrada == saida){
-            Circulo c = {{saida->ponto.x,saida->ponto.y}, 4};
-            t.circulo(c, {0.1, 0.1, 0.9});
+            caminho->push_back(saida);
             return;
         }
         if(entrada->ant == NULL){
             std::cout<<"Nao existe caminho \n";
         } else {
-            caminho_curto(fonte, entrada->ant->ponto );
-            Circulo c = {{entrada->ponto.x,entrada->ponto.y}, 4};
-            t.circulo(c, {0.1, 0.1, 0.9});
+            caminho_curto_(fonte, entrada->ant->ponto, caminho );
+            caminho->push_back(entrada);
+
         }
     }
 
