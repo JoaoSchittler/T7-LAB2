@@ -38,7 +38,9 @@ namespace grafo{
 
         Vertice* busca_vertice(Ponto p);
 
-        void caminho_curto(Ponto fonte,Ponto destino);
+        std::vector<Vertice*> caminho_curto(Ponto fonte,Ponto destino);
+
+        void caminho_curto_(Ponto fonte,Ponto destino, std::vector<Vertice*>* caminho);
 
 
     };
