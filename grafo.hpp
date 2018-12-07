@@ -34,7 +34,7 @@ namespace grafo{
         
         std::vector<Vertice*> busca_vizinhos(Ponto p);
 
-        void busca_largura(Vertice* saida, Vertice* entrada);
+         void busca_largura_lab(Vertice* saida, Vertice* entrada, std::vector<Vertice*> fantasmas);
 
         Vertice* busca_vertice(Ponto p);
 
