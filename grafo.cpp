@@ -52,7 +52,7 @@ namespace grafo{
         return vizinhos;
     }
 
-    void Grafo::busca_largura(Vertice* saida, Vertice* entrada){
+    void Grafo::busca_largura_lab(Vertice* saida, Vertice* entrada, std::vector<Vertice*> fantasmas){
         std::queue<Vertice*> fila;
         fila.push(saida);
         Vertice* aux;
@@ -61,6 +61,10 @@ namespace grafo{
             it->second.cor =  BRANCO;
             it++;
         }
+        
+        for(auto i: fantasmas)
+            i->cor = PRETO;
+        
         while(fila.empty()==false){
             aux = fila.front();
             fila.pop();
