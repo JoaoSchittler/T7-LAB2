@@ -263,12 +263,29 @@ struct Jogo
                 mapa.map[linindex][colindex]= 'V';
                 powerup_timer += 20*FPS; //20 segundos de powerup  
             } 
+            
+            if(existe_pontos() == false){
+                estado = Estado::ganhou;
+            }
+            
             pacman.map_pos.x = pacman.pos.x;
             pacman.map_pos.y = pacman.pos.y;
             pacman.anim_counter = 0;
             pacman.current_dir = pacman.next_dir;
         }  
     }
+    
+    bool existe_pontos(){
+        for(int i = 0;i<mapa.lin;i++){
+            for(int j  = 0; j<mapa.col;j++){
+                if(mapa.map[i][j] == 'C')
+                    return true;
+            }
+        }
+
+        return false;
+    }
+    
     //Animações
     void pac_move_anim()
     {
