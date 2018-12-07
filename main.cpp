@@ -1,4 +1,5 @@
 
+#define  TAM  20      //Tamanho de um quadrado do mapa em pixeis
 #include <chrono>
 #include <list>
 #include <random>
@@ -10,7 +11,7 @@
 #include "mapa.hpp"
 #include "grafo.hpp"
 #define  FPS 30      //Frames por segundos
-#define  PPF 5       //Pixeis por frames
+#define  PPF 4       //Pixeis por frames
 using namespace tela;
 using namespace geom;
 using namespace mapa;
@@ -34,6 +35,7 @@ struct Jogo
     Tela            t;
     Estado          estado;
     Character       pacman;
+    const  int      quant_fantasma = 4;
     Character       ghost[4];
     Mapa            mapa;
     Grafo           grafo;
@@ -42,7 +44,6 @@ struct Jogo
     int             score;
     int             powerup_timer;
     int             game_timer;
-    const  int      quant_fantasma = 4;
 
     void inicia(void)
     {
@@ -198,15 +199,15 @@ struct Jogo
 
           std::string s = std::to_string(score);
           const char  *Score = s.c_str();
-          p1.x += 80;
+          p1.x += 60;
           t.texto(p1, Score);
           s = std::to_string(game_timer/FPS);
           char const *Time  = s.c_str();
-          p2.x += 80;
+          p2.x += 60;
           t.texto(p2,Time);
 
 
-    }
+   }
 
     void desenha_fantasmas()
     {
@@ -217,18 +218,20 @@ struct Jogo
     }
     void desenha_fantasma(int i)
     {
+        int index;
         if(powerup_timer==0)
         {
               //UP = 1,DOWN = 2, LEFT =3 RIGHT = 4
-              int index = 2*(ghost[i].current_dir-1);
-              if(ghost[i].anim_sprite_frame > 1) index++;
-              t.desenha_imagem(ghost[i].sprite[index],ghost[i].pos.x,ghost[i].pos.y);
-    
+              index = 2*(ghost[i].current_dir-1);
+              if(ghost[i].anim_sprite_frame > 1) index++;    
         }
         else
         {
             //Powerup está ativo
-        }  
+            index = 8;
+            if(ghost[i].anim_sprite_frame > 1) index++;
+        }
+        t.desenha_imagem(ghost[i].sprite[index],ghost[i].pos.x-6,ghost[i].pos.y-5);  
     } 
     void move_personagens()
     {
@@ -238,7 +241,7 @@ struct Jogo
 
     void move_pac()
     {
-        if(pacman.anim_counter < 20)
+        if(pacman.anim_counter < TAM)
         {
            //Continua a animação de movimento  
             pac_move_anim();
@@ -246,11 +249,11 @@ struct Jogo
         else
         {
             //Pacman chegou no proximo vertice do grafo
-            unsigned int colindex =  (pacman.pos.x-mapa.xini)/20;
-            unsigned int linindex =  (pacman.pos.y-mapa.yini)/20;
+            unsigned int colindex =  (pacman.pos.x-mapa.xini)/TAM;
+            unsigned int linindex =  (pacman.pos.y-mapa.yini)/TAM;
             if(mapa.map[linindex][colindex]=='C')
             {
-                score++;
+                score+=10;
                 mapa.map[linindex][colindex]= 'V';
                 //std::cout << "Score: " << score << std::endl;
             } 
@@ -258,7 +261,7 @@ struct Jogo
             {
                 score++;
                 mapa.map[linindex][colindex]= 'V';
-                powerup_timer = 20*FPS;//20 segundos de powerup  
+                powerup_timer += 20*FPS; //20 segundos de powerup  
             } 
             pacman.map_pos.x = pacman.pos.x;
             pacman.map_pos.y = pacman.pos.y;
@@ -276,22 +279,22 @@ struct Jogo
         int tam = saidas.size();
         while(i < tam)
         {
-            if((pacman.current_dir==1) && (saidas[i]->ponto.y == pacman.map_pos.y-20))
+            if((pacman.current_dir==1) && (saidas[i]->ponto.y == pacman.map_pos.y-TAM))
             {
                 pacman.pos.y -=PPF;
                 moveu = true;
             }
-            if((pacman.current_dir==2) && (saidas[i]->ponto.y == pacman.map_pos.y+20))
+            if((pacman.current_dir==2) && (saidas[i]->ponto.y == pacman.map_pos.y+TAM))
             {
                 pacman.pos.y +=PPF;
                 moveu = true;
             }
-            if((pacman.current_dir==3) && (saidas[i]->ponto.x == pacman.map_pos.x-20))
+            if((pacman.current_dir==3) && (saidas[i]->ponto.x == pacman.map_pos.x-TAM))
             {
                 pacman.pos.x -=PPF;
                 moveu = true;
             }
-            if((pacman.current_dir==4) && (saidas[i]->ponto.x == pacman.map_pos.x+20))
+            if((pacman.current_dir==4) && (saidas[i]->ponto.x == pacman.map_pos.x+TAM))
             {
                 pacman.pos.x +=PPF;
                 moveu = true;
@@ -316,14 +319,25 @@ struct Jogo
 
     void move_ghosts()
     {
+      if(powerup_timer == 0)
+      {  
         for(int i = 0;i < quant_fantasma; i++)
         {
               move_ghost(retorna_caminho(i,pacman.map_pos),i);
-        }  
+        }
+      }
+      else
+      {
+        for(int i = 0;i < quant_fantasma; i++)
+        {
+              move_ghost2(retorna_caminho_aleatorio(i),i);
+        }
+      } 
+
     }
     void move_ghost(Ponto proximo ,int i)
     {
-          if(ghost[i].anim_counter < 20)
+          if(ghost[i].anim_counter < TAM)
           {
               ghost_move_anim(proximo,i);
           }
@@ -335,14 +349,33 @@ struct Jogo
               Ponto next = retorna_caminho(i,pacman.map_pos);
               if(next.x ==  ghost[i].map_pos.x && next.y == ghost[i].map_pos.y)
               {
-                  estado = Estado::perdeu;
-                  return;
-              }  
-              //std::cout <<" I :  " << i <<  "  X: " <<next.x << "  Y:" << next.y << std::endl;
-              ghost[i].current_dir =  ajusta_direcao(next,ghost[i].map_pos); 
+                  estado = Estado::perdeu;  //Fantasma tocou no pacman
+              }
+              else  
+                  ghost[i].current_dir =  ajusta_direcao(next,ghost[i].map_pos); 
           }
          // std::cout << "I:" << i << "  Dir:  " << ghost[i].current_dir << std::endl;
           //std::cout  << "Ghost " << i << "  mapX : " << ghost[i].map_pos.x << " mapY :" << ghost[i].map_pos.y << std::endl;
+    }
+    void move_ghost2(Ponto proximo ,int i)
+    {
+          if(ghost[i].anim_counter < TAM)
+          {
+              ghost_move_anim(proximo,i);
+          }
+          else//Atualiza posição do fantasma no grafo
+          {
+              ghost[i].map_pos.x    = ghost[i].pos.x;
+              ghost[i].map_pos.y    = ghost[i].pos.y;
+              ghost[i].anim_counter = 0;
+              Ponto next = retorna_caminho_aleatorio(i);
+              if(next.x ==  ghost[i].map_pos.x && next.y == ghost[i].map_pos.y)
+              {
+                 //Pacman comeu fantasma
+              }
+              else  
+                  ghost[i].current_dir =  ajusta_direcao(next,ghost[i].map_pos); 
+          }
     }
     void ghost_move_anim(Ponto proximo ,int i)
     {
@@ -392,19 +425,16 @@ struct Jogo
     ///Retorna um ponto vizinho aleatorio a partir do fantasma i
     Ponto retorna_caminho_aleatorio(int i){
             Ponto p = ghost[i].map_pos;
-
             std::vector<Vertice*> vizinhos = grafo.busca_vizinhos(p);
              //Semente 
             unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
             
             std::default_random_engine rand(seed);
             std::uniform_int_distribution<> intervalo(0,vizinhos.size()-1);
-
             int index = intervalo(rand);
-
             return vizinhos[index]->ponto;
     }
-        //Retorna o caminho do fantasma i ate o ponto q
+   //Retorna o caminho do fantasma i ate o ponto q
     Ponto retorna_caminho(int i, Ponto q){
           Ponto p = ghost[i].map_pos;
           Vertice * a = grafo.busca_vertice(p);
