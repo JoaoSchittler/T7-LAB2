@@ -1,4 +1,5 @@
 
+
 #include <fstream>
 #include <iostream>
 #include "mapa.hpp"
@@ -65,14 +66,25 @@ namespace mapa
               t.retangulo(ret,{0,0,0});            
               if(map[j][i]=='P')
                    t.retangulo(ret,c);
-              else if(map[j][i]=='C')
+              else
               {
-                   Circulo circ;
-                   circ.raio = 2;
-                   circ.centro.x = ret.pos.x+10;
-                   circ.centro.y = ret.pos.y+10; 
+
+                Circulo circ;
+                circ.centro.x = ret.pos.x+10;
+                circ.centro.y = ret.pos.y+10; 
+                if(map[j][i]=='C')
+                {
+                   circ.raio = 2;   
                    t.circulo(circ,c2); 
-              } 
+                }
+                if(map[j][i]=='E')
+                {
+                   circ.raio = 4;
+                   t.circulo(circ,c2);
+                }  
+              }
+
+
               ret.pos.x+=20;  
           }
           ret.pos.x = 0;
@@ -89,3 +101,4 @@ namespace mapa
     delete [] map;  
  }
 }
+
