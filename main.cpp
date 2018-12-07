@@ -171,6 +171,7 @@ struct Jogo
     }
     void desenha_jogo()
     {
+        t.limpa();
         mapa.desenha(t);
         desenha_pacman();
         desenha_fantasmas();
@@ -196,12 +197,12 @@ struct Jogo
           t.texto(p2,msg_timer);
 
           std::string s = std::to_string(score);
-          char const *Score = s.c_str();
+          const char  *Score = s.c_str();
+          p1.x += 80;
+          t.texto(p1, Score);
           s = std::to_string(game_timer/FPS);
           char const *Time  = s.c_str();
-          p1.x += 80;
           p2.x += 80;
-          t.texto(p1,Score);
           t.texto(p2,Time);
 
 
