@@ -276,8 +276,8 @@ struct Jogo
     }
     
     bool existe_pontos(){
-        for(int i = 0;i<mapa.lin;i++){
-            for(int j  = 0; j<mapa.col;j++){
+        for(unsigned int i = 0;i<mapa.lin;i++){
+            for(unsigned j  = 0; j<mapa.col;j++){
                 if(mapa.map[i][j] == 'C')
                     return true;
             }
@@ -456,9 +456,18 @@ struct Jogo
           Ponto p = ghost[i].map_pos;
           Vertice * a = grafo.busca_vertice(p);
           Vertice * b = grafo.busca_vertice(q);
-          grafo.busca_largura_lab(a,b);
+
+          std::vector<Vertice*> outros_fantasmas;
+          for(int j = 0 ;j < quant_fantasma; j++){
+                if(j!=i){
+                    outros_fantasmas.push_back(grafo.busca_vertice(ghost[j].map_pos));
+                }
+          }
+
+          grafo.busca_largura_lab(a,b, outros_fantasmas);
           std::vector<Vertice*> caminho = grafo.caminho_curto(p, q);
           return caminho[1]->ponto; // Retorna o próximo vertice que o fantasma i precisa chegar
+
 
     }
 
