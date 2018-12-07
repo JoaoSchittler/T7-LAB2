@@ -389,6 +389,21 @@ struct Jogo
 
 
     }
+    ///Retorna um ponto vizinho aleatorio a partir do fantasma i
+    Ponto retorna_caminho_aleatorio(int i){
+            Ponto p = ghost[i].map_pos;
+
+            std::vector<Vertice*> vizinhos = grafo.busca_vizinhos(p);
+             //Semente 
+            unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+            
+            std::default_random_engine rand(seed);
+            std::uniform_int_distribution<> intervalo(0,vizinhos.size()-1);
+
+            int index = intervalo(rand);
+
+            return vizinhos[index]->ponto;
+    }
         //Retorna o caminho do fantasma i ate o ponto q
     Ponto retorna_caminho(int i, Ponto q){
           Ponto p = ghost[i].map_pos;
