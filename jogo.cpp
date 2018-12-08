@@ -208,7 +208,7 @@ void Jogo::desenha_fantasma(int i)
 void Jogo::move_personagens()
 {
     move_pac();
-    //move_ghosts();
+    move_ghosts();
 }
 
 bool Jogo::existe_pontos(){
