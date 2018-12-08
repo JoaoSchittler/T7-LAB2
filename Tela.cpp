@@ -1,30 +1,4 @@
 
-// Tela.cpp
-// Estrutura que descreve uma tela.
-//
-// The MIT License (MIT)
-//
-// Copyright (c) 2017,2018 João Vicente Ferreira Lima, UFSM
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in
-// all
-// copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
-
 #include <iostream>
 #include <cstdlib>
 
@@ -32,18 +6,6 @@
 #include "geom.hpp"
 
 namespace tela {
-
-/* Conversao de unidades do usuario para coordenadas X e vice-versa */
-/* Independentemente do tamanho da janela, dizemos que ela tem 80x24 */
-//#define XU2X(x) ((short)(LARGURA * (x) / 80))
-//#define YU2X(y) ((short)(ALTURA * (y) / 24))
-//#define XX2U(x) ((float)(x) / LARGURA * 80)
-//#define YX2U(y) ((float)(y) / ALTURA * 24)
-/* cada 1 nas coordenadas do usuario corresponde a 10 pixels para o X */
-//#define XU2X(x) ((short)((x)*10))
-//#define YU2X(y) ((short)((y)*10))
-//#define XX2U(x) ((float)(x)/10)
-//#define YX2U(y) ((float)(y)/10)
 
 constexpr float XU2X(float x) {
     return x;
@@ -214,12 +176,12 @@ void Tela::processa_eventos() {
             break;
         }
 #if 0
-	  /* _botao de fechar janela pressionado */
-	  case ALLEGRO_EVENT_DISPLAY_CLOSE:
-		  {
-			  return;
-			  break;
-		  }
+      /* _botao de fechar janela pressionado */
+      case ALLEGRO_EVENT_DISPLAY_CLOSE:
+          {
+              return;
+              break;
+          }
 #endif
         default:
             break;
@@ -228,20 +190,18 @@ void Tela::processa_eventos() {
 }
 
 void Tela::retangulo(Retangulo r,Cor cor) {
+    /* preenche o retangulo r com a cor padrao */
     al_draw_filled_rectangle(
         /* canto superior esquerdo */
         XU2X(r.pos.x), YU2X(r.pos.y),
         /* canto inferior direito */
-        XU2X(r.pos.x + r.tam.larg), YU2X(r.pos.y + r.tam.alt),al_map_rgb(cor.r,cor.g,cor.b));
+        XU2X(r.pos.x + r.tam.larg), YU2X(r.pos.y + r.tam.alt), al_map_rgb(cor.r,cor.g,cor.b));
 }
 
-
-void Tela::circulo(Circulo c, Cor cor) {
-
+void Tela::circulo(Circulo c,Cor cor) {
+    /* preenche o circulo r na tela com a cor padrao */
     al_draw_filled_circle(XU2X(c.centro.x), YU2X(c.centro.y), XU2X(c.raio),
-
-                        al_map_rgb(cor.r,cor.g,cor.b));
-
+                          al_map_rgb(cor.r,cor.g,cor.b));
 }
 
 void Tela::linha(Ponto p1, Ponto p2) {
@@ -265,7 +225,8 @@ int Tela::strlen(const char *s) const {
 
 void Tela::texto(Ponto p, const char *s) {
     /* escreve o texto s na posicao p da tela */
-    al_draw_text(fonte, ac_cor, XU2X(p.x), YU2X(p.y), ALLEGRO_ALIGN_LEFT, s);
+    al_draw_text(fonte, 
+        al_map_rgb(255,255,255), XU2X(p.x), YU2X(p.y), ALLEGRO_ALIGN_LEFT, s);
 }
 
 Ponto Tela::rato() {
@@ -292,5 +253,20 @@ Tamanho Tela::tamanho_texto(const char *s) {
 Tamanho Tela::tamanho() const {
     return tam;
 }
+ALLEGRO_BITMAP* Tela::carrega_imagem(char *path)
+{
+    ALLEGRO_BITMAP* imagem = al_load_bitmap(path);
+    if(!imagem) std::cout << path << " Erro ao carregar\n";
+    return imagem;
+}
+void Tela::destroy_imagem(ALLEGRO_BITMAP* imagem)
+{
+    al_destroy_bitmap(imagem);
+}
+void Tela::desenha_imagem(ALLEGRO_BITMAP* image,float x, float y)
+{
+    al_draw_bitmap(image,x,y,0); 
+}
+
 
 }; // namespace tela
