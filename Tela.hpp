@@ -30,6 +30,7 @@
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_image.h>
+#include "allegro5/allegro_native_dialog.h"
 #include <allegro5/allegro_color.h>
 #include <allegro5/allegro_primitives.h>
 
@@ -101,10 +102,10 @@ struct Tela {
     void linha(Ponto p1, Ponto p2);
 
     // desenha um retangulo
-    void retangulo(Retangulo r, Cor cor);
+    void retangulo(Retangulo r,Cor cor);
 
     // desenha um circulo
-    void circulo(Circulo c, Cor cor);
+    void circulo(Circulo c,Cor cor);
 
     // tamanho necessario para se escrever o texto s
     Tamanho tamanho_texto(const char *s);
@@ -114,6 +115,10 @@ struct Tela {
 
     // processa eventos da tela
     void processa_eventos();
+    ALLEGRO_BITMAP* carrega_imagem( char* path );
+    void desenha_imagem(ALLEGRO_BITMAP* image,float x, float y);
+    void destroy_imagem(ALLEGRO_BITMAP* imagem);
+
 };
 
 }; // namespace tela
