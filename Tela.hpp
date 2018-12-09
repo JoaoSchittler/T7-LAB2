@@ -118,6 +118,11 @@ struct Tela {
     ALLEGRO_BITMAP* carrega_imagem( char* path );
     void desenha_imagem(ALLEGRO_BITMAP* image,float x, float y);
     void destroy_imagem(ALLEGRO_BITMAP* imagem);
+    
+    void play_sample(ALLEGRO_SAMPLE* som, ALLEGRO_PLAYMODE mode);
+    void play_instance(ALLEGRO_SAMPLE_INSTANCE* instance);
+    void destroy_sample(ALLEGRO_SAMPLE* som);
+    void destroy_instance(ALLEGRO_SAMPLE_INSTANCE* instance);
 
 };
 
