@@ -267,6 +267,26 @@ void Tela::desenha_imagem(ALLEGRO_BITMAP* image,float x, float y)
 {
     al_draw_bitmap(image,x,y,0); 
 }
+    
+void Tela::play_sample(ALLEGRO_SAMPLE* som, ALLEGRO_PLAYMODE mode)
+{
+    al_play_sample(som, 1.0, 0.0, 1.0,mode, 0);
+}
+
+void Tela::play_instance(ALLEGRO_SAMPLE_INSTANCE* instance)
+{
+    al_play_sample_instance(instance);
+}
+
+void Tela::destroy_sample(ALLEGRO_SAMPLE* som)
+{
+    al_destroy_sample(som);
+}
+
+void Tela::destroy_instance(ALLEGRO_SAMPLE_INSTANCE* instance)
+{
+    al_destroy_sample_instance(instance);
+}
 
 
 }; // namespace tela
