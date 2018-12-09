@@ -72,11 +72,14 @@ void Tela::inicia(int larg, int alt, const char *nome) {
     /* instala o driver de mouse e teclado */
     al_install_mouse();
     al_install_keyboard();
+    al_install_audio();
     al_init_primitives_addon();
+    
 
     /* configura fonte */
     al_init_font_addon();
     al_init_image_addon();
+    al_init_acodec_addon();
     // fonte = al_load_bitmap_font("data/a4_font.tga");
     fonte = al_load_font("data/fixed_font.tga", 0, 0);
     if (!fonte) {
