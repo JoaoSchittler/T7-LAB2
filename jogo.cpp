@@ -9,7 +9,10 @@ void Jogo::inicia(void)
     grafo.cria_grafo        (mapa.map,mapa.lin,mapa.col);
     grafo.cria_lista_adj    ();
     carrega_imagens         ();
+    carrega_sons            ();
     inicia_variaveis        ();
+    //Som que fica em loop do movimento dos fantasmas
+    t.play_instance         (instance);
 }
 
 void Jogo::inicia_variaveis()
@@ -129,6 +132,25 @@ void Jogo::carrega_imagens()
     ghost[3].sprite[10] = t.carrega_imagem("Sprites/SG_3.png");
     ghost[3].sprite[11] = t.carrega_imagem("Sprites/SG_4.png");
     std::cout << "Imagens carregadas \n";
+}
+
+void Jogo::carrega_sons(){
+    al_reserve_samples(5);
+
+    som[0] = al_load_sample("Audio/pacman_chomp.wav");
+
+    som[1] = al_load_sample("Audio/pacman_death.wav");
+
+    som[2] = al_load_sample("Audio/pacman_eatfruit.wav");
+
+    som[3] = al_load_sample("Audio/pacman_eatghost.wav");
+
+    som[4] = al_load_sample("Audio/pacman_ghostsound.ogg");
+
+    instance = al_create_sample_instance(som[4]);
+    al_set_sample_instance_playmode(instance, ALLEGRO_PLAYMODE_LOOP);
+    al_attach_sample_instance_to_mixer(instance, al_get_default_mixer());
+
 }
 
     //Função que roda a cada frame do jogo
@@ -261,6 +283,8 @@ void Jogo::move_pac()
         {
             score+=10;
             mapa.map[linindex][colindex]= 'V';
+            //Som de comeu ponto
+            t.play_sample(som[0],ALLEGRO_PLAYMODE_ONCE);
             //std::cout << "Score: " << score << std::endl;
         }
 
@@ -268,6 +292,8 @@ void Jogo::move_pac()
         {
             score++;
             mapa.map[linindex][colindex]= 'V';
+            //Som de comeu power up
+            t.play_sample(som[2],ALLEGRO_PLAYMODE_ONCE);
             powerup_timer += 20*FPS; //20 segundos de powerup
         }
 
@@ -374,6 +400,8 @@ void Jogo::move_ghost(Ponto proximo ,int i)
 
         if(next.x ==  ghost[i].map_pos.x && next.y == ghost[i].map_pos.y)
         {
+            //Som de quando o pac morre
+            t.play_sample(som[1],ALLEGRO_PLAYMODE_ONCE);
             estado = Estado::perdeu;  //Fantasma tocou no pacman
         }
         else
@@ -398,6 +426,8 @@ void Jogo::move_ghost2(Ponto proximo ,int i)
 
         if(ghost[i].map_pos.x ==  pacman.map_pos.x && ghost[i].map_pos.y == pacman.map_pos.y && ghost[i].eaten == 0)
         {
+            //Som de quando comeu um fantasma
+            t.play_sample(som[3],ALLEGRO_PLAYMODE_ONCE);
             ghost[i].eaten  = 1;
             score+=100;
 
@@ -515,6 +545,14 @@ void Jogo::destroi_imagens()
     }
 }
 
+void Jogo::destroi_sons()
+{
+    for(int i = 0;i<5;i++){
+        t.destroy_sample(som[i]);
+    }
+    t.destroy_instance(instance);
+}
+
 void Jogo::finaliza(void)
 {
     mapa.libera();
@@ -524,5 +562,6 @@ void Jogo::finaliza(void)
         printf("\nYOU WIN \n");
 
       destroi_imagens();
+      destroi_sons();
       t.finaliza();
 }
