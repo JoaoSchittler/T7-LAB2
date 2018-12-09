@@ -396,7 +396,7 @@ void Jogo::move_ghost2(Ponto proximo ,int i)
         Ponto next = retorna_caminho_aleatorio(i);
 
 
-        if(next.x ==  pacman.map_pos.x && next.y == pacman.map_pos.y && ghost[i].eaten == 0)
+        if(ghost[i].map_pos.x ==  pacman.map_pos.x && ghost[i].map_pos.y == pacman.map_pos.y && ghost[i].eaten == 0)
         {
             ghost[i].eaten  = 1;
             score+=100;
