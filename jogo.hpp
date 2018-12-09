@@ -49,6 +49,8 @@ namespace jogo{
         Character       ghost[4];
         Mapa            mapa;
         Grafo           grafo;
+        ALLEGRO_SAMPLE* som[5];
+        ALLEGRO_SAMPLE_INSTANCE* instance;
         int             tecla;
         int             frame_counter;
         int             score;
@@ -65,6 +67,8 @@ namespace jogo{
         void inicia_fantasmas();
 
         void carrega_imagens();
+        
+        void carrega_sons();
 
         //Função que roda a cada frame do jogo
 
@@ -111,6 +115,8 @@ namespace jogo{
         bool verifica_fim(void);
 
         void destroi_imagens();
+        
+        void destroi_sons();
 
         void finaliza(void);
 
