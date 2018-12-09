@@ -33,6 +33,7 @@ namespace jogo{
 
             Ponto    pos;
             Ponto map_pos;
+            int      eaten;
             int      next_dir;
             int      current_dir;
             int      anim_counter;
