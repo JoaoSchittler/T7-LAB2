@@ -22,7 +22,7 @@ using namespace mapa;
 using namespace grafo;
 
 /* estados para o jogo */
-enum Estado { nada, menu, jogando, ganhou, perdeu };
+enum Estado { nada, menu, jogando, ganhou, perdeu , saiu };
 
 namespace jogo{
     struct Jogo
@@ -105,6 +105,8 @@ namespace jogo{
         void ghost_move_anim(Ponto proximo ,int i);
 
         int ajusta_direcao(Ponto destino,Ponto gp);
+        bool colidiu(int i);
+        void desenha_menu_final();
 
         ///Retorna um ponto vizinho aleatorio a partir do fantasma i
         Ponto retorna_caminho_aleatorio(int i);
