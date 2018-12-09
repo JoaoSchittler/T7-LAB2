@@ -28,19 +28,35 @@ void Jogo::inicia_pacman()
     pacman.next_dir          = 4;
     pacman.anim_counter      = 0;
     pacman.anim_sprite_frame = 0;
-    pacman.pos               = grafo.grafo[0].ponto;
-    pacman.map_pos           = grafo.grafo[0].ponto;
+    pacman.pos               = grafo.grafo[328].ponto;
+    pacman.map_pos           = grafo.grafo[328].ponto;
 }
 
 void Jogo::inicia_fantasmas()
 {
     for(int  i =0 ; i<quant_fantasma;i++)
     {
-        ghost[i].pos               = grafo.grafo[i+2].ponto;
-        ghost[i].map_pos           = grafo.grafo[i+2].ponto;
-        ghost[i].current_dir       = 4;//Inicia fantasma olhando para a direita
+        Ponto p;
+        int dir ;
+        switch(i){
+            case 0: p = grafo.grafo[0].ponto;
+                    dir = 4;
+                break;
+            case 1: p = grafo.grafo[31].ponto;
+                    dir = 3;
+                break;
+            case 2: p = grafo.grafo[grafo.grafo.size()-1].ponto;
+                    dir = 3;
+                break;
+            case 3: p = grafo.grafo[grafo.grafo.size()-33].ponto;
+                    dir = 4;
+        }
+        ghost[i].pos               = p;
+        ghost[i].map_pos           = p;
+        ghost[i].current_dir       = dir;//Inicia fantasma olhando para a direita
         ghost[i].anim_counter      = 0;
         ghost[i].anim_sprite_frame = 0;
+        ghost[i].eaten             = 0;
     }
 }
 
@@ -170,12 +186,12 @@ void Jogo::desenha_info()
 
     std::string s = std::to_string(score);
     const char  *Score = s.c_str();
-    p1.x += 60;
+    p1.x += 100;
     t.texto(p1, Score);
 
     s = std::to_string(game_timer/FPS);
     char const *Time  = s.c_str();
-    p2.x += 60;
+    p2.x += 100;
     t.texto(p2,Time);
 }
 
@@ -198,8 +214,13 @@ void Jogo::desenha_fantasma(int i)
     }
     else
     {
+
+        if(ghost[i].eaten == 1)
+            index = 10;
+        else
+            index = 8;
         //Powerup está ativo
-        index = 8;
+        //std::cout<<"Index : "<<index;
         if(ghost[i].anim_sprite_frame > 1) index++;
     }
     t.desenha_imagem(ghost[i].sprite[index],ghost[i].pos.x-6,ghost[i].pos.y-5);
@@ -325,6 +346,7 @@ void Jogo::move_ghosts()
     {
         for(int i = 0;i < quant_fantasma; i++)
         {
+            ghost[i].eaten = 0;
             move_ghost(retorna_caminho(i,pacman.map_pos),i);
         }
     }
@@ -332,7 +354,7 @@ void Jogo::move_ghosts()
     {
         for(int i = 0;i < quant_fantasma; i++)
         {
-              move_ghost2(retorna_caminho_aleatorio(i),i);
+            move_ghost2(retorna_caminho_aleatorio(i),i);
         }
     }
 }
@@ -350,16 +372,14 @@ void Jogo::move_ghost(Ponto proximo ,int i)
         ghost[i].anim_counter = 0;
         Ponto next = retorna_caminho(i,pacman.map_pos);
 
-        if(pacman.map_pos.x ==  ghost[i].map_pos.x && pacman.map_pos.y == ghost[i].map_pos.y)
+        if(next.x ==  ghost[i].map_pos.x && next.y == ghost[i].map_pos.y)
         {
             estado = Estado::perdeu;  //Fantasma tocou no pacman
         }
         else
             ghost[i].current_dir =  ajusta_direcao(next,ghost[i].map_pos);
     }
-         // std::cout << "I:" << i << "  Dir:  " << ghost[i].current_dir << std::endl;
 
-          //std::cout  << "Ghost " << i << "  mapX : " << ghost[i].map_pos.x << " mapY :" << ghost[i].map_pos.y << std::endl;
 }
 
 void Jogo::move_ghost2(Ponto proximo ,int i)
@@ -375,13 +395,15 @@ void Jogo::move_ghost2(Ponto proximo ,int i)
         ghost[i].anim_counter = 0;
         Ponto next = retorna_caminho_aleatorio(i);
 
-        if(next.x ==  ghost[i].map_pos.x && next.y == ghost[i].map_pos.y)
+
+        if(next.x ==  pacman.map_pos.x && next.y == pacman.map_pos.y && ghost[i].eaten == 0)
         {
-            //Pacman comeu fantasma
+            ghost[i].eaten  = 1;
+            score+=100;
 
         }
-        else
-            ghost[i].current_dir =  ajusta_direcao(next,ghost[i].map_pos);
+
+        ghost[i].current_dir =  ajusta_direcao(next,ghost[i].map_pos);
     }
 }
 
