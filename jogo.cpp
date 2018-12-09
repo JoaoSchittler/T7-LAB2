@@ -11,13 +11,13 @@ void Jogo::inicia(void)
     carrega_imagens         ();
     carrega_sons            ();
     inicia_variaveis        ();
-    //Som que fica em loop do movimento dos fantasmas
+     //Som que fica em loop do movimento dos fantasmas
     t.play_instance         (instance);
 }
 
 void Jogo::inicia_variaveis()
 {
-    estado                   = Estado::nada;
+    estado                   = Estado::jogando;
     score                    = 0;
     game_timer               = 0;
     powerup_timer            = 0;
@@ -157,19 +157,23 @@ void Jogo::carrega_sons(){
 void Jogo::atualiza(void)
 {
     detecta_tecla();
-    desenha_jogo();
+    if(estado == Estado::jogando)
+    {
+        desenha_jogo();
+        move_personagens();
+        if(powerup_timer>0) powerup_timer--;
+        game_timer++;
+    }
+    if(estado == Estado::perdeu || estado == Estado::ganhou)
+        desenha_menu_final();    
     t.mostra();
-    move_personagens();
-    if(powerup_timer>0) powerup_timer--;
-    game_timer++;
     t.espera(1000/FPS);
-}
-
+}    
 void Jogo::detecta_tecla()
 {
     tecla = t.tecla();
     // std::cout << tecla << std::endl;
-    if(tecla == ALLEGRO_KEY_Q) estado = Estado::perdeu;
+    if(tecla == ALLEGRO_KEY_Q) estado = Estado::saiu;
     if(tecla == ALLEGRO_KEY_UP || tecla == ALLEGRO_KEY_W)    pacman.next_dir = 1;
     if(tecla == ALLEGRO_KEY_DOWN || tecla == ALLEGRO_KEY_S)  pacman.next_dir = 2;
     if(tecla == ALLEGRO_KEY_LEFT || tecla == ALLEGRO_KEY_A)  pacman.next_dir = 3;
@@ -372,8 +376,11 @@ void Jogo::move_ghosts()
     {
         for(int i = 0;i < quant_fantasma; i++)
         {
-            ghost[i].eaten = 0;
-            move_ghost(retorna_caminho(i,pacman.map_pos),i);
+            if(estado == Estado::jogando)
+            {
+                ghost[i].eaten = 0;
+                move_ghost(retorna_caminho(i,pacman.map_pos),i);
+            }
         }
     }
     else
@@ -384,9 +391,28 @@ void Jogo::move_ghosts()
         }
     }
 }
-
+bool Jogo::colidiu(int i)
+{
+    float gx = ghost[i].pos.x;
+    float gy = ghost[i].pos.y;
+    float px = pacman.pos.x;
+    float py = pacman.pos.y;
+    if( (gx >= (px-5)) && (gx <= (px+5)) && (gy >= (py-5)) && (gy<=(py+5))) 
+        return true;
+    else 
+        return  false;   
+} 
 void Jogo::move_ghost(Ponto proximo ,int i)
 {
+    if(colidiu(i) == true)
+    {
+
+            estado = Estado::perdeu;
+            //Som de quando o pac morre
+            t.play_sample(som[1],ALLEGRO_PLAYMODE_ONCE);
+            return;
+
+    }
     if(ghost[i].anim_counter < TAM)
     {
         ghost_move_anim(proximo,i);
@@ -398,20 +424,24 @@ void Jogo::move_ghost(Ponto proximo ,int i)
         ghost[i].anim_counter = 0;
         Ponto next = retorna_caminho(i,pacman.map_pos);
 
-        if(next.x ==  ghost[i].map_pos.x && next.y == ghost[i].map_pos.y)
+        if(ghost[i].map_pos.x !=  next.x || ghost[i].map_pos.y != next.y)
         {
-            //Som de quando o pac morre
-            t.play_sample(som[1],ALLEGRO_PLAYMODE_ONCE);
-            estado = Estado::perdeu;  //Fantasma tocou no pacman
+           ghost[i].current_dir =  ajusta_direcao(next,ghost[i].map_pos);
         }
-        else
-            ghost[i].current_dir =  ajusta_direcao(next,ghost[i].map_pos);
     }
 
 }
 
 void Jogo::move_ghost2(Ponto proximo ,int i)
 {
+    if(colidiu(i)==true  && ghost[i].eaten == 0)
+    {
+            t.play_sample(som[3],ALLEGRO_PLAYMODE_ONCE);
+            ghost[i].eaten  = 1;
+            score+=100;
+            return;
+
+    }
     if(ghost[i].anim_counter < TAM)
     {
         ghost_move_anim(proximo,i);
@@ -422,18 +452,11 @@ void Jogo::move_ghost2(Ponto proximo ,int i)
         ghost[i].map_pos.y    = ghost[i].pos.y;
         ghost[i].anim_counter = 0;
         Ponto next = retorna_caminho_aleatorio(i);
-
-
-        if(ghost[i].map_pos.x ==  pacman.map_pos.x && ghost[i].map_pos.y == pacman.map_pos.y && ghost[i].eaten == 0)
+        if(ghost[i].map_pos.x !=  next.x || ghost[i].map_pos.y != next.y)
         {
-            //Som de quando comeu um fantasma
-            t.play_sample(som[3],ALLEGRO_PLAYMODE_ONCE);
-            ghost[i].eaten  = 1;
-            score+=100;
-
+           ghost[i].current_dir =  ajusta_direcao(next,ghost[i].map_pos);
         }
 
-        ghost[i].current_dir =  ajusta_direcao(next,ghost[i].map_pos);
     }
 }
 
@@ -519,10 +542,29 @@ Ponto Jogo::retorna_caminho(int i, Ponto q)
         return caminho[0]->ponto;
 
 }
+void Jogo::desenha_menu_final()
+{
+    t.limpa();
+    char* msg1 = "GAME OVER";
+    char* msg2 = "Pontuacao final";
+    char* msgw = "Voce venceu!";
+    char* msgl = "Voce perdeu";
+    char* msg3 = "Aperte Q para sair";
+    t.texto({367,100},msg1);
 
+    if(estado == Estado::ganhou)
+        t.texto({360,200},msgw);
+    else
+        t.texto({360,200},msgl);
+    t.texto({330,300},msg2);
+    std::string s = std::to_string(score);
+    const char  *Score = s.c_str();
+    t.texto({385,325}, Score);
+    t.texto({320,400},msg3);
+}
 bool Jogo::verifica_fim(void)
 {
-    if (estado == Estado::perdeu || estado == Estado::ganhou)
+    if (estado == Estado::saiu)
         return true;
     else
         return false;
@@ -556,12 +598,9 @@ void Jogo::destroi_sons()
 void Jogo::finaliza(void)
 {
     mapa.libera();
-    if(estado == Estado::perdeu)
+    if(estado == Estado::saiu)
         printf("\nGAME OVER\n");
-    else
-        printf("\nYOU WIN \n");
-
-      destroi_imagens();
-      destroi_sons();
-      t.finaliza();
+    destroi_imagens();
+    destroi_sons();
+    t.finaliza();
 }
