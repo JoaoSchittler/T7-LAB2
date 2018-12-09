@@ -9,7 +9,7 @@ Tela.o: Tela.cpp Tela.hpp geom.hpp
 mapa.o: mapa.cpp mapa.hpp  Tela.hpp geom.hpp
 jogo.o: jogo.cpp jogo.hpp  mapa.hpp  grafo.hpp Tela.hpp geom.hpp
 grafo.o: grafo.cpp grafo.hpp Tela.hpp geom.hpp
-main.o: main.cpp geom.hpp
+main.o: main.cpp jogo.hpp geom.hpp
 principal: main.o Tela.o  grafo.o mapa.o jogo.o
 	$(CXX) $(CXXFLAGS) -o $@  $^ $(LDFLAGS)
 
