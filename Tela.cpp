@@ -142,7 +142,6 @@ void Tela::processa_eventos() {
     /* processa eventos do servidor X, atualizando a posicao do mouse
      * e ultima _tecla pressionada na variavel da tela. */
     ALLEGRO_EVENT event;
-
     // al_wait_for_event(queue, &event);
     while (al_get_next_event(queue, &event)) {
         switch (event.type) {
@@ -167,12 +166,17 @@ void Tela::processa_eventos() {
         }
         case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN: {
             if (event.mouse.button == 1)
+            {
                 _botao = true;
+               
+            }
             break;
         }
         case ALLEGRO_EVENT_MOUSE_BUTTON_UP: {
             if (event.mouse.button == 1)
+            {
                 _botao = false;
+            }
             break;
         }
         case ALLEGRO_EVENT_TIMER: {
@@ -189,6 +193,7 @@ void Tela::processa_eventos() {
         default:
             break;
         }
+        
     }
 }
 
@@ -226,10 +231,10 @@ int Tela::strlen(const char *s) const {
     return al_get_text_width(fonte, s);
 }
 
-void Tela::texto(Ponto p, const char *s) {
+void Tela::texto(Ponto p, const char *s,Cor c) {
     /* escreve o texto s na posicao p da tela */
     al_draw_text(fonte, 
-        al_map_rgb(255,255,255), XU2X(p.x), YU2X(p.y), ALLEGRO_ALIGN_LEFT, s);
+        al_map_rgb(c.r,c.g,c.b), XU2X(p.x), YU2X(p.y), ALLEGRO_ALIGN_LEFT, s);
 }
 
 Ponto Tela::rato() {

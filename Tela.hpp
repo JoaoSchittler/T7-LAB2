@@ -84,7 +84,7 @@ struct Tela {
     int strlen(const char *s) const;
 
     // escreve o texto s a partir da posicao p da tela
-    void texto(Ponto p, const char *s);
+    void texto(Ponto p, const char *s,Cor c);
 
     // retorna o codigo da proxima tecla apertada (ou 0, se nao tiver tecla
     // alguma)
@@ -93,6 +93,7 @@ struct Tela {
 
     // retorna true se o botao do mouse estiver apertado
     bool botao();
+    bool botaoup();
 
     // retorna a posicao do cursor do mouse
     Ponto rato();

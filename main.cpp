@@ -6,12 +6,6 @@ using namespace jogo;
 int main(int argc, char **argv)
 {
     Jogo jogo;
-
-    jogo.inicia();
-    while (jogo.verifica_fim() == false)
-    {
-        jogo.atualiza();
-    }
-    jogo.finaliza();
+    jogo.joga();
     return 0;
 }

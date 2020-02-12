@@ -1,20 +1,71 @@
 #include"jogo.hpp"
 
 using namespace jogo;
-
+void Jogo::joga()
+{
+    
+    inicia();
+    while (verifica_fim() == false)
+    {
+        atualiza();
+    }
+    finaliza();
+}
 void Jogo::inicia(void)
 {
+    //Inicia a tela do jogo
     t.inicia                (800, 600, "Pacman");
+    //Carrega o mapa padrao do jogo
     mapa.cria               ("mapa.txt");
-    grafo.cria_grafo        (mapa.map,mapa.lin,mapa.col);
-    grafo.cria_lista_adj    ();
+    //Inicia imagens sons
     carrega_imagens         ();
     carrega_sons            ();
+    inicia_mapa();
+    estado = Estado::menu;
+
+}
+//Função que roda a cada frame do jogo
+void Jogo::atualiza(void)
+{
+    detecta_tecla();
+    t.limpa();
+    if(estado == Estado::menu)
+    {
+        desenha_menu_principal();
+    }    
+    if(estado == Estado::jogando)
+    {
+        desenha_jogo();
+        move_personagens();
+        if(powerup_timer>0) powerup_timer--;
+        game_timer++;
+    }
+    if(estado == Estado::perdeu || estado == Estado::ganhou)
+    {
+        desenha_menu_final();    
+    }
+    if(estado == Estado::customize)
+    {
+        mouse_pos    = t.rato();    
+        mapa.desenha(t);
+        altera_mapa();
+        
+    }    
+    t.mostra();
+    t.espera(1000/FPS);
+}   
+void Jogo::inicia_jogo()
+{
+    //Cria e preenche o grafo correspondente ao mapa 
+    grafo.cria_grafo        (mapa.map,mapa.lin,mapa.col);
+    grafo.cria_lista_adj    ();
+
+    //Inicia variáveis 
     inicia_variaveis        ();
-     //Som que fica em loop do movimento dos fantasmas
+
+     //Som do movimento dos fantasmas
     t.play_instance         (instance);
 }
-
 void Jogo::inicia_variaveis()
 {
     estado                   = Estado::jogando;
@@ -37,7 +88,7 @@ void Jogo::inicia_pacman()
 
 void Jogo::inicia_fantasmas()
 {
-    for(int  i =0 ; i<quant_fantasma;i++)
+    for(int  i = 0 ; i<quant_fantasma; i++) 
     {
         Ponto p;
         int dir ;
@@ -62,7 +113,24 @@ void Jogo::inicia_fantasmas()
         ghost[i].eaten             = 0;
     }
 }
+void Jogo::inicia_mapa()
+{
+    //Cria o mapa original, usado para retornar o mapa à versão default caso o usuário deseja
+    mapa_ori =  new char* [mapa.lin];
+    for (unsigned int i = 0; i < mapa.lin;i++)
+    {
+          mapa_ori[i] =  new char [mapa.col];
+    }
+    //Copia o mapa para o mapa auxiliar
+    for(unsigned int i = 0; i < mapa.lin;i++)
+    {
+        for(unsigned int j = 0; j < mapa.col; j++)
+        {
+            mapa_ori[i][j] = mapa.map[i][j];
+        }    
+    }    
 
+}
 void Jogo::carrega_imagens()
 {
     //Imagens do pacman
@@ -152,37 +220,133 @@ void Jogo::carrega_sons(){
     al_attach_sample_instance_to_mixer(instance, al_get_default_mixer());
 
 }
-
-    //Função que roda a cada frame do jogo
-void Jogo::atualiza(void)
-{
-    detecta_tecla();
-    if(estado == Estado::jogando)
-    {
-        desenha_jogo();
-        move_personagens();
-        if(powerup_timer>0) powerup_timer--;
-        game_timer++;
-    }
-    if(estado == Estado::perdeu || estado == Estado::ganhou)
-        desenha_menu_final();    
-    t.mostra();
-    t.espera(1000/FPS);
-}    
+ 
 void Jogo::detecta_tecla()
 {
     tecla = t.tecla();
-    // std::cout << tecla << std::endl;
-    if(tecla == ALLEGRO_KEY_Q) estado = Estado::saiu;
-    if(tecla == ALLEGRO_KEY_UP || tecla == ALLEGRO_KEY_W)    pacman.next_dir = 1;
-    if(tecla == ALLEGRO_KEY_DOWN || tecla == ALLEGRO_KEY_S)  pacman.next_dir = 2;
-    if(tecla == ALLEGRO_KEY_LEFT || tecla == ALLEGRO_KEY_A)  pacman.next_dir = 3;
-    if(tecla == ALLEGRO_KEY_RIGHT || tecla == ALLEGRO_KEY_D) pacman.next_dir = 4;
+    if(estado == Estado::jogando)
+    {
+        //Movimentação
+        if(tecla == ALLEGRO_KEY_UP || tecla == ALLEGRO_KEY_W)    pacman.next_dir = 1;
+        if(tecla == ALLEGRO_KEY_DOWN || tecla == ALLEGRO_KEY_S)  pacman.next_dir = 2;
+        if(tecla == ALLEGRO_KEY_LEFT || tecla == ALLEGRO_KEY_A)  pacman.next_dir = 3;
+        if(tecla == ALLEGRO_KEY_RIGHT || tecla == ALLEGRO_KEY_D) pacman.next_dir = 4;
+    }
+    if(estado == Estado::customize)
+    {
+        if(tecla == ALLEGRO_KEY_R)
+        {
+            reseta_mapa();
+        }    
+    }    
+    //Menus
+    if(tecla == ALLEGRO_KEY_Q) 
+        estado = Estado::saiu;
+
+    if(tecla == ALLEGRO_KEY_P && estado != Estado::jogando)
+    {
+        inicia_jogo();
+        reinicia_mapa();
+        estado = Estado::jogando;
+    }  
+    if(tecla == ALLEGRO_KEY_C && estado != Estado::customize)
+    {
+        botao_last = 0;
+        reinicia_mapa();
+        estado = Estado::customize;
+    }  
+    if(tecla == ALLEGRO_KEY_M && estado != Estado::menu)
+    { 
+        estado = Estado::menu;
+    }    
+}
+
+void Jogo::desenha_menu_principal()
+{
+    t.limpa();
+    char* title =   "PACMAN";
+     //Desenha texto
+    t.texto({350,50},title,{255,255,255});
+
+}
+void Jogo::reinicia_mapa()
+{
+    for(unsigned int i = 0; i < mapa.lin; i++)
+    {
+        for(unsigned int j = 0; j < mapa.col; j++)
+        {
+           if(mapa.map[i][j] == 'V')
+           {
+              mapa.map[i][j] = 'C';
+           }
+           if(mapa.map[i][j] == 'Z')
+           {
+              mapa.map[i][j] = 'E';
+           }
+
+        }
+    }    
+}
+void Jogo::reseta_mapa()
+{
+    for(unsigned int i = 0; i < mapa.lin; i++)
+    {
+        for(unsigned int j = 0; j < mapa.col; j++)
+        {
+           mapa.map[i][j] = mapa_ori[i][j];
+        }
+    }    
+}
+void Jogo::altera_mapa()
+{
+    if(t.botao() == 0 && botao_last == 1)
+    {
+        botao_up = true;
+    }
+    else
+    {
+        botao_up = false;
+    }   
+    botao_last = t.botao(); 
+    //Verifica se o mouse está dentro do mapa
+    if(mouse_pos.x >= mapa.xini && mouse_pos.x <= (20*mapa.col) 
+        && mouse_pos.y >= mapa.yini && mouse_pos.y <= (20*mapa.lin))
+    {
+        Ponto upperleft,downright;
+        unsigned int lin = floor(mouse_pos.y/20);
+        unsigned int col = floor(mouse_pos.x/20);
+        upperleft.x = col*20;
+        upperleft.y = lin*20;
+        downright.x = upperleft.x+20;
+        downright.y = upperleft.y+20;
+        al_draw_rectangle(upperleft.x,upperleft.y,downright.x,downright.y,al_map_rgb(255,0,0),1);
+        // P -> C -> E -> P
+        // Parede -> Caminho(Com "pastilha") -> pastilha Especial -> Parede
+        if(botao_up)
+        {
+           if( mapa.map[lin-3][col] == 'P')
+           { 
+                 mapa.map[lin-3][col] = 'C';
+                 return;
+           }
+           if( mapa.map[lin-3][col] == 'C')
+           {
+                mapa.map[lin-3][col] = 'E'; 
+                return;
+           }
+           if( mapa.map[lin-3][col] == 'E')
+           {
+                mapa.map[lin-3][col] = 'P'; 
+                return; 
+           }
+
+        }    
+    }   
+
 }
 
 void Jogo::desenha_jogo()
 {
-    t.limpa();
     mapa.desenha(t);
     desenha_pacman();
     desenha_fantasmas();
@@ -207,18 +371,18 @@ void Jogo::desenha_info()
     const char* msg_score = "SCORE: ";
     Ponto p1 = {100,10};
     Ponto p2 = {100,30};
-    t.texto(p1,msg_score);
-    t.texto(p2,msg_timer);
+    t.texto(p1,msg_score,{255,255,255});
+    t.texto(p2,msg_timer,{255,255,255});
 
     std::string s = std::to_string(score);
     const char  *Score = s.c_str();
     p1.x += 100;
-    t.texto(p1, Score);
+    t.texto(p1, Score,{255,255,255});
 
     s = std::to_string(game_timer/FPS);
     char const *Time  = s.c_str();
     p2.x += 100;
-    t.texto(p2,Time);
+    t.texto(p2,Time,{255,255,255});
 }
 
 void Jogo::desenha_fantasmas()
@@ -295,7 +459,7 @@ void Jogo::move_pac()
         if(mapa.map[linindex][colindex]=='E')
         {
             score++;
-            mapa.map[linindex][colindex]= 'V';
+            mapa.map[linindex][colindex]= 'Z';
             //Som de comeu power up
             t.play_sample(som[2],ALLEGRO_PLAYMODE_ONCE);
             powerup_timer += 20*FPS; //20 segundos de powerup
@@ -550,17 +714,17 @@ void Jogo::desenha_menu_final()
     char* msgw = "Voce venceu!";
     char* msgl = "Voce perdeu";
     char* msg3 = "Aperte Q para sair";
-    t.texto({367,100},msg1);
+    t.texto({367,100},msg1,{255,255,255});
 
     if(estado == Estado::ganhou)
-        t.texto({360,200},msgw);
+        t.texto({360,200},msgw,{255,255,255});
     else
-        t.texto({360,200},msgl);
-    t.texto({330,300},msg2);
+        t.texto({360,200},msgl,{255,255,255});
+    t.texto({330,300},msg2,{255,255,255});
     std::string s = std::to_string(score);
     const char  *Score = s.c_str();
-    t.texto({385,325}, Score);
-    t.texto({320,400},msg3);
+    t.texto({385,325}, Score,{255,255,255});
+    t.texto({320,400},msg3,{255,255,255});
 }
 bool Jogo::verifica_fim(void)
 {

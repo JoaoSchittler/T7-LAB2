@@ -22,7 +22,7 @@ using namespace mapa;
 using namespace grafo;
 
 /* estados para o jogo */
-enum Estado { nada, menu, jogando, ganhou, perdeu , saiu };
+enum Estado { menu, customize , jogando, ganhou, perdeu , saiu };
 
 namespace jogo{
     struct Jogo
@@ -44,21 +44,30 @@ namespace jogo{
 
         Tela            t;
         Estado          estado;
+        Ponto           mouse_pos;
         Character       pacman;
         const  int      quant_fantasma = 4;
         Character       ghost[4];
         Mapa            mapa;
+        char**          mapa_ori;
         Grafo           grafo;
         ALLEGRO_SAMPLE* som[5];
         ALLEGRO_SAMPLE_INSTANCE* instance;
+        bool            botao_up;
+        bool            botao_last;
         int             tecla;
         int             frame_counter;
         int             score;
         int             powerup_timer;
         int             game_timer;
 
+        void joga();
+
+        void inicia_jogo();
 
         void inicia(void);
+
+        void inicia_mapa();
 
         void inicia_variaveis();
 
@@ -70,11 +79,17 @@ namespace jogo{
         
         void carrega_sons();
 
-        //Função que roda a cada frame do jogo
-
         void atualiza(void);
 
         void detecta_tecla();
+
+        void desenha_menu_principal();
+
+        void reinicia_mapa();
+
+        void reseta_mapa();
+
+        void altera_mapa();
 
         void desenha_jogo();
 
@@ -90,9 +105,7 @@ namespace jogo{
 
         bool existe_pontos();
 
-        void move_pac()
-        ;
-        //Animações
+        void move_pac();
 
         void pac_move_anim();
 
@@ -111,7 +124,7 @@ namespace jogo{
         ///Retorna um ponto vizinho aleatorio a partir do fantasma i
         Ponto retorna_caminho_aleatorio(int i);
 
-       //Retorna o caminho do fantasma i ate o ponto q
+        //Retorna o caminho do fantasma i ate o ponto q
         Ponto retorna_caminho(int i, Ponto q);
 
         bool verifica_fim(void);

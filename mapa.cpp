@@ -47,7 +47,7 @@ namespace mapa
        }
        input_map.close();
        std::cout << "Mapa criado, " << lin << " linhas e " << col << " colunas\n";
- } 
+ }
  void Mapa::desenha(Tela t)
  {
 
